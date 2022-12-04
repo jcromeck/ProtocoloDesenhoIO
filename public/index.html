@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Desenho Compartilhado</title>
+    <script src="socket.io/socket.io.js"></script>
+    <script src="//code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="script.js"></script>
+</head>
+<body>
+    <canvas id="tela"></canvas>
+    <div class="cp_wrapper">
+        <input type="color" id="colorPallete1" value="#ff8888"></input>
+    </div>
+    <button type="button" id="colorPallete2" value="#ff0000" style="background-color:red" onclick="ColorSelect(value,this)"></button>
+    <button type="button" id="colorPallete3" value="#0000ff" style="background-color:blue" onclick="ColorSelect(value,this)"></button>
+    <button type="button" id="colorPallete4" value="#008000" style="background-color:green" onclick="ColorSelect(value,this)"></button>
+    <button type="button" id="colorPallete5" value="#ffff00" style="background-color:yellow" onclick="ColorSelect(value,this)"></button>
+    <button type="button" id="colorPallete6" value="#ffa500" style="background-color:orange" onclick="ColorSelect(value,this)"></button>
+    <button type="button" id="colorPallete7" value="#cd7f32" style="background-color:brown" onclick="ColorSelect(value,this)"></button>
+    <button type="button" id="colorPallete8" value="#800080" style="background-color:purple" onclick="ColorSelect(value,this)"></button>
+    <button type="button" id="colorPallete9" value="#000000" style="background-color:black" onclick="ColorSelect(value,this)"></button>
+    
+    <div id="msgs" class="scroll"></div>
+    <input id="resp" type="text" placeholder="Digite sua resposta">
+
+    <script>
+        const socket = io();
+
+        socket.on('msg', function(msg){
+            $('#msgs').append(msg+'<br>');
+        })
+
+        $(function(){
+            $('input').keydown(function(key){
+                console.log(key.keyCode)
+                if(key.keyCode == 13){
+                    socket.emit('msg', $(this).val());
+                    $(this).val('');
+                }
+            })
+        })
+
+        function ColorSelect(cor,element){
+            document.getElementById("colorPallete1").value = element.value;
+        }
+    </script>
+</body>
+</html>
