@@ -42,10 +42,9 @@ button{
   display: inline-block;
 }
 .square{
-  height: 100px;
-  width: 500px;
+  height: 40px;
+  width: 400px;
   background-color: #bbb;
-  border-radius: 25%;
   border: solid 2px black;
 }
 
