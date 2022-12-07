@@ -11,11 +11,15 @@
     <script src="script.js"></script>
 </head>
 <body>
-    <canvas id="tela"></canvas>
+
+    <canvas id="tela"></canvas> 
+    <div class="square"><h1 style="visibility:hidden" id="palavraDesenhar">Animal</h1></div>
+    <span class="dot"><span class="seconds" id="second"></span></span>
     <div class="cp_wrapper">
         <input type="color" id="colorPallete1" value="#ff8888"></input>
     </div>
-    <button type="button" id="colorPallete2" value="#ff0000" style="background-color:red" onclick="ColorSelect(value,this)"></button>
+    <div></div>           
+    
     <button type="button" id="colorPallete3" value="#0000ff" style="background-color:blue" onclick="ColorSelect(value,this)"></button>
     <button type="button" id="colorPallete4" value="#008000" style="background-color:green" onclick="ColorSelect(value,this)"></button>
     <button type="button" id="colorPallete5" value="#ffff00" style="background-color:yellow" onclick="ColorSelect(value,this)"></button>
@@ -23,21 +27,38 @@
     <button type="button" id="colorPallete7" value="#cd7f32" style="background-color:brown" onclick="ColorSelect(value,this)"></button>
     <button type="button" id="colorPallete8" value="#800080" style="background-color:purple" onclick="ColorSelect(value,this)"></button>
     <button type="button" id="colorPallete9" value="#000000" style="background-color:black" onclick="ColorSelect(value,this)"></button>
-    
+    <button type="button" id="colorPallete10" value="#FFFFFF" style="background-color:white" onclick="ColorSelect(value,this)"></button>
+
     <div id="msgs" class="scroll"></div>
     <input id="resp" type="text" placeholder="Digite sua resposta">
 
     <script>
         const socket = io();
+        palavraCertaF="";
 
         socket.on('msg', function(msg){
             $('#msgs').append(msg+'<br>');
         })
-
+        socket.on('palavraCerta', function(palavraCerta){
+            palavraCertaF = palavraCerta;
+        })
+        socket.on('cancelarmensagem', function(num){
+            if(num==0){
+                document.getElementById("resp").disabled = true;
+            }else{
+                document.getElementById("resp").disabled = false;
+            }
+        })
+            
         $(function(){
             $('input').keydown(function(key){
                 console.log(key.keyCode)
-                if(key.keyCode == 13){
+                if(key.keyCode == 13 && palavraCertaF == $(this).val()){
+                    document.getElementById("resp").disabled = true;
+                    $(this).val('Palavra Correta');
+                    socket.emit('acertou')
+                }
+                else if(key.keyCode == 13){
                     socket.emit('msg', $(this).val());
                     $(this).val('');
                 }

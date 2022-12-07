@@ -21,7 +21,8 @@ var numAcertaram=0;
 
 io.on('connection', (socket) => {
     console.log('Nova conexão');
-    socket.emit('horaPintar')
+    socket.emit('pintor',numConexoes)
+    //socket.emit('horaPintar')
     numConexoes++;
 
     historico.forEach(linha => {
@@ -49,6 +50,7 @@ io.on('connection', (socket) => {
         numAcertaram++;
         if(numAcertaram == numConexoes){
             io.emit('fimdaRodada')
+            numAcertaram=0;
         }
     })
     socket.on('clear', () => {

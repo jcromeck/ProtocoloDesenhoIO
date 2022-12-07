@@ -60,6 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
         contagemRegressiva(0);
         contexto.clearRect(0,0,tela.width,tela.height);
     })
+    socket.on('novaPalavra',(animal) => {
+        document.getElementById('palavraDesenhar').value=animal;
+  })
     
 
     const ciclo = () => {
@@ -95,9 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 socket.emit('horaPintar')
                 ordemDesenhar;
                 document.getElementById('palavraDesenhar').style.visibility= hidden;
-                socket.on('novaPalavra',(animal) => {
-                    document.getElementById('palavraDesenhar').value=animal;
-              })
+                
             }else{
                 ciclo();
                 document.getElementById("second").innerHTML =segundo;
@@ -105,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(contagemRegressiva(segundo),1000);
             }
     }
+    ordemDesenhar();
     
     
 })
