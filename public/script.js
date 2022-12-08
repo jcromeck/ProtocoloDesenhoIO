@@ -1,8 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     const tela = document.querySelector('#tela');
-    const contexto = tela.getContext('2d');
+    
+    const palavra = document.querySelector('#palavra');
+    
+    const teste = document.querySelector('.teste');
 
+    const contexto = tela.getContext('2d');
     const socket = io.connect();
+    let jogadorAtual = "usuário"
+    let numJogador = 0
+    let pessoaADesenhar = false;
 
     const pincel = {
         ativo: false,
@@ -10,8 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pos:{x: 0, y: 0},
         posAnterior: null,
     }
-    pessoaADesenhar = false;
-    segundos=150;
+
     tela.width = 700;
     tela.height = 500;
 
@@ -27,13 +33,14 @@ document.addEventListener('DOMContentLoaded', () => {
             colorAnterior=color;
         }
         if(linha){
-        contexto.beginPath();
-        contexto.moveTo(linha.posAnterior.x, linha.posAnterior.y);
-        contexto.lineTo(linha.pos.x, linha.pos.y);
-        contexto.stroke();
-        }else{
+            contexto.beginPath();
+            contexto.moveTo(linha.posAnterior.x, linha.posAnterior.y);
+            contexto.lineTo(linha.pos.x, linha.pos.y);
+            contexto.stroke();
+        } else{
             contexto.clearRect(0, 0, tela.width, tela.height);
         }
+        
     }
 
     tela.onmousedown = (evento) => {
@@ -50,63 +57,45 @@ document.addEventListener('DOMContentLoaded', () => {
         pincel.movendo = true;
     }
 
-    socket.on('pintor',(num)=>{
-        contagemVez = num;
-    })
     socket.on('desenhar', (linha) => {
         desenharLinha(linha);
     })
-    socket.on('fimdaRodada', () => {
-        contagemRegressiva(0);
-        contexto.clearRect(0,0,tela.width,tela.height);
+    socket.on('palavraGerada',(palavraChave)=>{
+        document.getElementById("palavraDesenhar").innerHTML = palavraChave;
     })
-    socket.on('novaPalavra',(animal) => {
-        document.getElementById('palavraDesenhar').value=animal;
-  })
-    
+    socket.on('funcaoStart',(bool)=>{
+        StopCiclo(bool);
+    })
 
     const ciclo = () => {
-        if(pincel.ativo && pincel.movendo && pincel.posAnterior && pessoaADesenhar){
+        if(pincel.ativo && pincel.movendo && pincel.posAnterior/* && pessoaADesenhar*/){
             socket.emit('desenhar', {pos: pincel.pos, posAnterior: pincel.posAnterior})
             pincel.movendo = false;
         }
         pincel.posAnterior = {x: pincel.pos.x, y: pincel.pos.y}
+
         document.body.addEventListener('keyup', e => {
             if(e.keyCode === 32){
               socket.emit('clear')
             }
           })
-        if(segundos !=0){
-            setTimeout(ciclo, 10);
+        setTimeout(ciclo, 10);
+    }
+    const StopCiclo=(bool)=>{
+        console.log("Deu certo");
+        pessoaADesenhar=bool;
+        ciclo();
+        if(bool){
+            document.getElementById("resp").disabled = false;
+            document.getElementById('palavraDesenhar').style.visibility= "visible";
+        }else{
+            contexto.clearRect(0,0,tela.width,tela.height);
+            document.getElementById("resp").disabled = true;
+            document.getElementById('palavraDesenhar').style.visibility= "hidden";
+            socket.emit('novaPalavra')
         }
     }
-    const ordemDesenhar = () =>{
-        contagemVez--;
-        if(contagemVez==0){
-            pessoaADesenhar=true;
-            socket.emit('cancelarmensagem',0)
-            segundos=150;
-            contagemRegressiva(segundos);
-            document.getElementById('palavraDesenhar').style.visibility= visible;
-        }
-    }
-    const contagemRegressiva = (segundo)=> {
-            if(segundo==0){
-                pessoaADesenhar = false;
-                segundos=0;
-                socket.emit('cancelarmensagem',1)
-                socket.emit('horaPintar')
-                ordemDesenhar;
-                document.getElementById('palavraDesenhar').style.visibility= hidden;
-                
-            }else{
-                ciclo();
-                document.getElementById("second").innerHTML =segundo;
-                segundo--;
-                setTimeout(contagemRegressiva(segundo),1000);
-            }
-    }
-    ordemDesenhar();
-    
-    
+    ciclo();
 })
+    
+    

@@ -6,19 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <title>Desenho Compartilhado</title>
-    <script src="socket.io/socket.io.js"></script>
     <script src="//code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script src="script.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+    <script language="JavaScript" src="script.js"></script>
 </head>
 <body>
 
+    <h2 class="teste">
+        
+    </h2>
+    <button type="button" id="buttonStart" style="background-color:lightgreen" onclick="Start(150)">Start</button>
+    <h2 style="visibility:hidden" id="palavraDesenhar"></h2>
     <canvas id="tela"></canvas> 
-    <div class="square"><h1 style="visibility:hidden" id="palavraDesenhar">Animal</h1></div>
-    <span class="dot"><span class="seconds" id="second"></span></span>
+    <span class="dot"><h1 class="seconds" id="second"></h1></span>
     <div class="cp_wrapper">
         <input type="color" id="colorPallete1" value="#ff8888"></input>
-    </div>
-    <div></div>           
+    </div>           
     
     <button type="button" id="colorPallete3" value="#0000ff" style="background-color:blue" onclick="ColorSelect(value,this)"></button>
     <button type="button" id="colorPallete4" value="#008000" style="background-color:green" onclick="ColorSelect(value,this)"></button>
@@ -31,32 +34,22 @@
 
     <div id="msgs" class="scroll"></div>
     <input id="resp" type="text" placeholder="Digite sua resposta">
-
+    
     <script>
         const socket = io();
-        palavraCertaF="";
-
+        palavra = document.getElementById("palavraDesenhar").innerHTML;
+        buttonStart = document.getElementById("buttonStart");
         socket.on('msg', function(msg){
             $('#msgs').append(msg+'<br>');
         })
-        socket.on('palavraCerta', function(palavraCerta){
-            palavraCertaF = palavraCerta;
-        })
-        socket.on('cancelarmensagem', function(num){
-            if(num==0){
-                document.getElementById("resp").disabled = true;
-            }else{
-                document.getElementById("resp").disabled = false;
-            }
-        })
-            
+
         $(function(){
             $('input').keydown(function(key){
                 console.log(key.keyCode)
-                if(key.keyCode == 13 && palavraCertaF == $(this).val()){
+                if(key.keyCode == 13 && $(this).val()== palavra){
                     document.getElementById("resp").disabled = true;
                     $(this).val('Palavra Correta');
-                    socket.emit('acertou')
+                    Stop();
                 }
                 else if(key.keyCode == 13){
                     socket.emit('msg', $(this).val());
@@ -64,7 +57,24 @@
                 }
             })
         })
-
+        function Stop(){
+            socket.emit('funcaoStart',false)
+            buttonStart.disabled = false;
+        }
+        function Start(segundo){
+            document.getElementById("second").innerHTML =segundo;
+            if(segundo==0){
+                Stop();
+            }else if(segundo ==150){
+                socket.emit('funcaoStart',true)
+                buttonStart.disabled = true;
+                segundo--;
+                setTimeout(Start(segundo),1000);
+            }else{
+                segundo--;
+                setTimeout(Start(segundo),1000);
+            }
+        }
         function ColorSelect(cor,element){
             document.getElementById("colorPallete1").value = element.value;
         }

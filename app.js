@@ -6,8 +6,11 @@ const server = http.createServer(app);
 const socketIo = require('socket.io');
 
 const io = socketIo(server);
-const animals = [];
-animals.push("Cachorro", "Cavalo", "Porco", "Guaxinim", "Gato", "Pinguim", "Calopsita", "Tucano", "Chimpanzé", "Tigre", "Leão", "Gorila", "Baleia", "Águia", "Cobra");
+
+
+let autoId = 0;
+let players = [];
+let limite = 0
 
 server.listen(3000, () => {
     console.log("running");
@@ -16,45 +19,49 @@ server.listen(3000, () => {
 app.use(express.static(__dirname + "/public"))
 
 var historico = []
-let numConexoes =1;
-var numAcertaram=0;
+var palavraChave = ['L' , 'R' , 'U' , 'B' , 'F'];
 
 io.on('connection', (socket) => {
-    console.log('Nova conexão');
-    socket.emit('pintor',numConexoes)
-    //socket.emit('horaPintar')
-    numConexoes++;
-
-    historico.forEach(linha => {
-        socket.emit('desenhar', linha)
-    })
-    socket.on('horaPintar', () => {
-        socket.emit('pintor',numConexoes)
-    })
-
-    socket.on('desenhar', (linha) => {
-        historico.push(linha)
-        io.emit('desenhar', linha)
-    })
-    
-    socket.on('msg', (msg) =>{
-        console.log(msg)
-        io.emit('msg', msg);
-    })
-    socket.on('mudarPalavra',()=>{
-        animal = animals[Math.floor(Math.random() * animals.length)];
-        io.emit('novaPalavra',(animal))
-        io.emit('palavraCerta',(animal))
-    })
-    socket.on('acertou',()=>{
-        numAcertaram++;
-        if(numAcertaram == numConexoes){
-            io.emit('fimdaRodada')
-            numAcertaram=0;
+    if(limite <=4){
+        limite++;
+        players.push(socket);
+        randomPlayer = Math.random() * players.length;
+        if(randomPlayer%2 != 0){
+            randomPlayer--;
         }
-    })
-    socket.on('clear', () => {
-        historico = new Array()
-        io.emit('desenhar')
-    })
+        random = Math.random() * palavraChave.length;
+        io.emit('palavraGerada',random)
+        
+        historico.forEach(linha => {
+            socket.emit('desenhar', linha)
+        })
+        socket.on('novaPalavra',()=>{
+            random = Math.random() * palavraChave.length;
+            io.emit('palavraGerada',random)
+        })
+        socket.on('desenhar', (linha) => {
+            historico.push(linha)
+            io.emit('desenhar', linha)
+        })
+        socket.on('funcaoStart',(bool)=>{
+            io.emit('funcaoStart', bool)
+        })
+        socket.on('msg', (msg) => {
+            console.log(msg)
+            io.emit('msg', msg);
+        })
+        socket.on('clear', () => {
+            historico = new Array()
+            io.emit('desenhar')
+        })
+    }else{
+        document.querySelector('#palavra').innerHTML = 'servidor cheio'
+        historico.push(linha)
+        document.getElementById("resp").disabled = true;
+    }
+    console.log(`Nova conexão`);
+    socket.on('disconnect', () => {
+        console.log(`${socket.id} disconnected`);
+    });
 })
+

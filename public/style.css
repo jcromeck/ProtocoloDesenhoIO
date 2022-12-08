@@ -9,15 +9,24 @@
   width: 700px;
   height: 500px;
   border: 1px solid;
+  
 }
-input[type='color'] {
+#buttonStart{
+border-radius: 100%;
+width: 80px;
+height: 80px;
+overflow: hidden;
+box-shadow: 1px 1px 3px 0px grey;
+margin: 1em;
+}
+input[type='color'] { 
   background-color: white;
   padding: 0;
   width: 150%;
   height: 150%;
   margin: -25%;
 }
-button{
+button{  
   border-radius: 100%;
   width: 30px;
   height: 30px;
@@ -25,7 +34,7 @@ button{
   box-shadow: 1px 1px 3px 0px grey;
   margin: 1em;
 }
-.cp_wrapper {
+.cp_wrapper {   
   overflow: hidden;
   width: 60px;
   height: 60px;
@@ -33,19 +42,6 @@ button{
   border-radius: 50%;
   box-shadow: 1px 1px 3px 0px grey;
   margin: 1em;
-}
-.dot {
-  height: 60px;
-  width: 60px;
-  background-color: #bbb;
-  border-radius: 50%;
-  display: inline-block;
-}
-.square{
-  height: 40px;
-  width: 400px;
-  background-color: #bbb;
-  border: solid 2px black;
 }
 
 #resp{
@@ -58,6 +54,14 @@ button{
   margin-top: 10px;
   margin-left: 10px;
   font-size: 14px;
+}
+
+.messages {
+  width: 600px;
+  height: 400px;
+  margin: 20px 0;
+  border: 1px solid #ddd;
+  padding: 20px;
 }
 
 #msgs{
@@ -79,6 +83,7 @@ button{
   height: 100px;
   overflow-y: scroll;
 }
+
 #colorPallete10{
 height: 30px;
 width: 30px;
